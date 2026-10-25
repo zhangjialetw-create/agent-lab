@@ -1,0 +1,8 @@
+.venv/
+.venv-lora/
+__pycache__/
+*.pyc
+.env
+runs/
+artifacts/
+adapter/
