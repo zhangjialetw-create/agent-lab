@@ -1,0 +1,70 @@
+import json
+import tempfile
+import unittest
+from pathlib import Path
+from harness import run, validate
+from knowledge import search
+from tools import execute, study_stats
+from router import fit, predict, read_rows
+from skills import load_skill
+
+
+class CoreTests(unittest.TestCase):
+    def test_stats(self):
+        self.assertEqual(study_stats()["total"], 75)
+
+    def test_retrieval(self):
+        self.assertEqual(search("如何创建虚拟环境")[0]["source"], "python-env.md#0")
+
+    def test_no_match(self):
+        self.assertEqual(search("量子海豚XYZ"), [])
+
+    def test_tool_allowlist(self):
+        with self.assertRaises(ValueError):
+            execute("powershell", "Remove-Item")
+
+    def test_skill_allowlist(self):
+        with self.assertRaises(ValueError):
+            load_skill("../../outside")
+
+    def test_bad_action(self):
+        with self.assertRaises(ValueError):
+            validate({"action": "delete", "query": "", "answer": "", "citations": []})
+
+    def test_wrong_field_type(self):
+        with self.assertRaises(ValueError):
+            validate({"action": "finish", "query": 1, "answer": "", "citations": []})
+
+    def test_run_and_trace(self):
+        with tempfile.TemporaryDirectory() as folder:
+            result = run("总分钟", log_dir=Path(folder))
+            self.assertEqual(result["status"], "ok")
+            self.assertIn("75", result["answer"])
+            events = [json.loads(line) for line in
+                      Path(result["log"]).read_text(encoding="utf-8").splitlines()]
+            self.assertEqual(events[-1]["summary"]["tool_calls"], 1)
+
+    def test_budget(self):
+        with tempfile.TemporaryDirectory() as folder:
+            result = run("总分钟", max_steps=1, log_dir=Path(folder))
+            self.assertEqual(result["status"], "failed")
+            self.assertIn("预算", result["answer"])
+
+    def test_fake_citation(self):
+        def chooser(question, observations, *args):
+            if not observations:
+                return {"action": "study_stats", "query": "", "answer": "", "citations": []}, {}
+            return {"action": "finish", "query": "", "answer": "75", "citations": ["fake.md"]}, {}
+        with tempfile.TemporaryDirectory() as folder:
+            result = run("总分钟", log_dir=Path(folder), decision_fn=chooser)
+            self.assertEqual(result["status"], "failed")
+
+    def test_training_changes_parameters(self):
+        model = fit(read_rows("router_train.jsonl"), epochs=30)
+        self.assertTrue(any(abs(w) > 0.01 for w in model["weights"]))
+        self.assertLess(model["loss"][-1], model["loss"][0])
+        self.assertEqual(predict(model, "解释虚拟环境的用途")[0], "search_notes")
+
+
+if __name__ == "__main__":
+    unittest.main()

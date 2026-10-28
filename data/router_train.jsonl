@@ -1,0 +1,12 @@
+{"question":"统计学习总分钟","tool":"study_stats"}
+{"question":"计算学习平均分钟","tool":"study_stats"}
+{"question":"查看学习记录数","tool":"study_stats"}
+{"question":"今天学了多少分钟","tool":"study_stats"}
+{"question":"汇总我的学习时长","tool":"study_stats"}
+{"question":"学习一共用了多久","tool":"study_stats"}
+{"question":"什么是 Python 虚拟环境","tool":"search_notes"}
+{"question":"解释 Git 提交","tool":"search_notes"}
+{"question":"如何创建虚拟环境","tool":"search_notes"}
+{"question":"查询 Agent Harness 概念","tool":"search_notes"}
+{"question":"知识库和 Skill 有什么区别","tool":"search_notes"}
+{"question":"怎么使用 Git 保存版本","tool":"search_notes"}

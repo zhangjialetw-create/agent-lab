@@ -1,0 +1,6 @@
+{"question":"请统计学习记录数和总分钟","tool":"study_stats"}
+{"question":"查看我的平均分钟","tool":"study_stats"}
+{"question":"汇总今天的学习时长","tool":"study_stats"}
+{"question":"解释虚拟环境的用途","tool":"search_notes"}
+{"question":"Git 提交是什么","tool":"search_notes"}
+{"question":"查询 Harness 的概念","tool":"search_notes"}
